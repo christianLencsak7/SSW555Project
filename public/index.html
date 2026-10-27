@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f7fb">
+  <title>Assignment Tracker | My Workspace</title>
+  <link rel="stylesheet" href="./css/style.css">
+  <script defer src="./js/script.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="/" aria-label="Assignment Tracker home"><span class="brand-mark">✦</span><span>study<span class="brand-light">space</span><small>ASSIGNMENT TRACKER</small></span></a>
+      <div class="sidebar-label">WORKSPACE</div>
+      <nav aria-label="Main navigation"><a class="nav-item active" href="/"><span>▦</span> My assignments</a></nav>
+      <div class="sidebar-bottom"><div class="side-note"><span>✧</span><strong>One thing at a time.</strong><p>Keep your coursework organized and make progress every day.</p></div><span class="version">SSW 555 · Sprint 1</span></div>
+    </aside>
+    <main class="main">
+      <header class="topbar"><div class="breadcrumb">Workspace <span>/</span> <strong>My assignments</strong></div><div class="avatar" title="Student workspace">S</div></header>
+      <div class="content">
+        <section class="welcome"><div><div class="eyebrow">YOUR STUDENT DASHBOARD</div><h1>Stay on top of <em>everything.</em></h1><p>A little organization goes a long way. Your assignments, all in one place.</p></div><button class="button primary" id="add-top" type="button"><span class="plus">＋</span> New assignment</button></section>
+        <section class="stats" aria-label="Assignment overview">
+          <div class="stat-card"><span class="stat-icon purple">▤</span><div><div class="stat-label">Total assignments</div><strong id="total-count">0</strong><span class="stat-foot">In your workspace</span></div></div>
+          <div class="stat-card"><span class="stat-icon amber">◷</span><div><div class="stat-label">To do</div><strong id="todo-count">0</strong><span class="stat-foot">Still on your list</span></div></div>
+          <div class="stat-card"><span class="stat-icon green">✓</span><div><div class="stat-label">Completed</div><strong id="done-count">0</strong><span class="stat-foot">Keep it going!</span></div></div>
+        </section>
+        <section class="assignments-section" aria-labelledby="assignments-title">
+          <div class="section-heading"><div><div class="eyebrow">YOUR COURSEWORK</div><h2 id="assignments-title">All assignments <span class="count-badge" id="list-count">0</span></h2></div><button class="button outline" id="add-inline" type="button">＋ Add assignment</button></div>
+          <div class="list-panel"><div class="list-head"><span>ASSIGNMENT</span><span>DUE DATE</span><span>PRIORITY</span><span>STATUS</span><span>ACTIONS</span></div><div id="assignment-list" aria-live="polite"></div><div id="empty-state" class="empty-state" hidden><div class="empty-illustration">✎</div><h3>Nothing on your list yet</h3><p>Start by adding your first assignment. Your future self will thank you.</p><button class="button primary" id="add-empty" type="button">＋ Add your first assignment</button></div></div>
+        </section>
+        <p class="footer-note">Made for focused students. ✨ <span>Assignment Tracker · Sprint 1</span></p>
+      </div>
+    </main>
+  </div>
+  <dialog id="assignment-dialog" aria-labelledby="dialog-title"><form id="assignment-form" novalidate><div class="dialog-head"><div><div class="eyebrow">ASSIGNMENT DETAILS</div><h2 id="dialog-title">New assignment</h2><p>Fill in the details to keep your work on track.</p></div><button type="button" class="icon-button close-button" id="close-dialog" aria-label="Close">×</button></div><div class="form-body"><label for="title">Assignment title <span class="required">*</span></label><input id="title" name="title" type="text" maxlength="120" placeholder="e.g. Research paper draft" required><div class="form-row"><div><label for="course">Course <span class="required">*</span></label><input id="course" name="course" type="text" maxlength="80" placeholder="e.g. SSW 555" required></div><div><label for="dueDate">Due date <span class="required">*</span></label><input id="dueDate" name="dueDate" type="date" required></div></div><label for="priority">Priority</label><select id="priority" name="priority"><option>Medium</option><option>High</option><option>Low</option></select><label for="description">Description <span class="optional">(optional)</span></label><textarea id="description" name="description" maxlength="1000" rows="4" placeholder="Add any notes or details..."></textarea><p id="form-error" class="form-error" role="alert" hidden></p></div><div class="dialog-actions"><button class="button outline" type="button" id="cancel-dialog">Cancel</button><button class="button primary" id="save-button" type="submit">Create assignment</button></div></form></dialog>
+  <dialog id="delete-dialog" aria-labelledby="delete-title"><div class="confirm-content"><div class="warning-icon">!</div><h2 id="delete-title">Delete this assignment?</h2><p id="delete-message">This action cannot be undone.</p><div class="dialog-actions"><button class="button outline" type="button" id="cancel-delete">Keep assignment</button><button class="button danger" type="button" id="confirm-delete">Delete assignment</button></div></div></dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

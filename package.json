@@ -1,0 +1,8 @@
+{
+  "name": "ssw555-assignment-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sprint 1 assignment tracker for SSW 555",
+  "scripts": { "start": "node server.js", "test": "node --test tests/*.test.js" },
+  "engines": { "node": ">=18" }
+}
