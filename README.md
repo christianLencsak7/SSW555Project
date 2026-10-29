@@ -1,80 +1,65 @@
-# Assignment Tracker | SSW 555 Sprint 1
+# Assignment Tracker | SSW 555 Sprint 2
 
-A responsive assignment management web application built with **plain HTML, CSS, and JavaScript** and a **Node.js server using only built-in modules**. No `npm install` or third-party dependencies required.
+A responsive assignment tracker built with HTML, CSS, JavaScript, and Node.js built-in modules. No npm install or third-party dependencies are required.
 
-## Run in VS Code
+## Run
 
-1. Install Node.js 18+ from the official Node.js website if needed.
-2. Unzip this folder and open `SSW555Project` in VS Code.
-3. Open **Terminal > New Terminal**.
-4. Run `npm start` (or `node server.js`).
-5. Visit **http://localhost:3000** in your browser.
-6. Press `Ctrl+C` in the terminal to stop the server.
+1. Open this repository folder in VS Code with Node.js 18 or newer installed.
+2. Run `npm start` (or `node server.js`).
+3. Open http://localhost:3000.
+4. Stop the server with Ctrl+C. Assignments will still be available the next time you start it.
 
-**Important:** Do not launch `index.html` directly with a `file://` URL or use Live Server on its own. This app uses backend API routes, so you must start the included Node.js server. You do not need Live Server.
+## Sprint 2 scope (11 story points)
 
-## Run automated tests
-
-Run `npm test` in the VS Code terminal. The test suite checks creation, listing, editing, completion/undo, deletion, validation, and page serving.
-
-## Sprint 1 scope (18 story points)
-
-| User story | Story points | Implemented functionality |
+| Sprint backlog story | Points | Implemented behavior |
 | --- | ---: | --- |
-| US1: Add assignments | 5 | Create form with title, due date, course, description, and priority; POST API |
-| US2: View assignments | 3 | GET API; responsive dashboard with assignment list |
-| US3: Complete assignments | 3 | Completion checkbox; PATCH API; Undo toast |
-| US4: Delete assignments | 2 | Delete action; confirmation dialog; DELETE API |
-| US5: Edit assignments | 5 | Prefilled edit form; PUT API |
+| US6: Organize by Course | 5 | Course tags, existing-course suggestions, and alphabetically ordered course groups with assignment counts. Toggle grouping off for one combined list. |
+| US7: Sort by Due Date | 3 | Earliest/latest toggle sorts within each course, or across the combined list when grouping is off. Earliest first is the default. |
+| US8: Save Assignments | 3 | Saves every successful creation, edit, completion/undo, and deletion to a local JSON file and reloads it on server startup. |
+
+The first report calls persistence **US8 in the Sprint 2 backlog** and **US12 in the product backlog**. This table follows the sprint backlog. Product-backlog US8 (filtering by course/status) is a separate feature and is not included in this sprint.
+
+Course names ignore case and repeated spaces when grouping. The course field suggests existing courses, while still allowing new ones. Editing a course moves the assignment into its new group; deleting the last assignment removes that group. The sorting toggle works in both views. Equal due dates use title, then ID, to keep ordering consistent. View choices reset to grouped/earliest on page reload.
+
+## Saved data
+
+The Node server automatically creates `data/assignments.json` on the first successful change. This file stays on the computer running the server and is excluded from Git. Refreshing or closing the browser, or stopping and restarting the server, preserves assignments. All browsers connecting to this server share its assignments.
+
+Writes use a temporary file followed by replacement of the saved snapshot. A failed save returns an error and keeps the previous in-memory state. Invalid or unreadable saved data stops startup instead of silently resetting it. If this occurs, back up the file and correct or restore it before restarting.
+
+For a different storage location, set `DATA_FILE` to an absolute file path before starting the server. Set `PORT` to change the default port. Run only one server process per data file; this is a local, single-server store, not a multi-user database with accounts or concurrent server coordination. Back up the data file separately if needed.
+
+## Sprint 1 functionality retained
+
+Create, view, edit, complete/undo, and delete assignments, with confirmation before deletion. Fields include title, due date, course, description, and High/Medium/Low priority. Incomplete assignments with past due dates are marked overdue. Dashboard counts show total, to-do, and completed assignments.
 
 ### API routes
 
-- `GET /api/assignments` returns all assignments.
-- `POST /api/assignments` creates an assignment.
-- `PUT /api/assignments/:id` updates assignment details.
-- `PATCH /api/assignments/:id` updates `{ "completed": true | false }`.
-- `DELETE /api/assignments/:id` deletes an assignment.
+- `GET /api/assignments`: list assignments.
+- `POST /api/assignments`: create an assignment.
+- `PUT /api/assignments/:id`: edit assignment details.
+- `PATCH /api/assignments/:id`: update `{ "completed": true | false }`.
+- `DELETE /api/assignments/:id`: delete an assignment.
 
-An assignment includes `id`, `title`, `dueDate`, `course`, `description`, `priority`, `completed`, `createdAt`, and `updatedAt`. The server validates incoming data.
+Assignments include `id`, `title`, `dueDate`, `course`, `description`, `priority`, `completed`, `createdAt`, and `updatedAt`. The server validates incoming data.
 
-## Important: Sprint 2 persistence is NOT implemented yet
+## Tests
 
-Your team's first report schedules **saving assignments between sessions** for Sprint 2 (User Story 8). Accordingly, Sprint 1 stores assignments **in server memory**: reloading the browser preserves data while the server runs, but **stopping/restarting the server clears all assignments**. This is intentional and keeps Sprint 1 aligned with the sprint backlog.
+Run `npm test`. Tests use temporary storage and do not touch your saved assignments. The suite covers the existing API, date sorting in both directions, course grouping, independent server-process restarts after every type of change, corrupt storage, and failed writes that preserve the previous state.
 
-The report also schedules organizing by course and sorting by due date for Sprint 2. These features are not included yet. Priority is recorded/displayed, but priority-based filtering and reminders are outside Sprint 1.
+### Manual acceptance checklist
 
-## Manual test checklist
-
-- [ ] Create an assignment with all fields and see it in the list.
-- [ ] Try submitting with a missing title, course, or due date.
-- [ ] Edit the title, due date, course, description, and priority.
-- [ ] Check an assignment complete; verify counts update.
-- [ ] Click **Undo** after completing; verify it becomes incomplete again.
-- [ ] Click Delete, then **Keep assignment**; verify it stays.
-- [ ] Delete again and confirm; verify it disappears.
-- [ ] Add an assignment with a past due date; verify it shows **Overdue**.
-- [ ] Refresh the browser while the server runs; verify assignments remain.
-
-## Push to the team GitHub repository after testing
-
-Clone the team's repository, copy these files into its folder (preserving the `.git` directory), then from that folder run:
-
-```bash
-git add .
-git commit -m "Implement Sprint 1 assignment tracker"
-git push origin main
-```
-
-You must have repository write access. Coordinate with your teammates before pushing to the shared `main` branch.
-
+- [ ] Create two assignments in one course and one in another; verify course headings and counts.
+- [ ] Enter a course using different capitalization/spacing; verify it stays in the same group.
+- [ ] Toggle earliest/latest and verify dates reverse within each group.
+- [ ] Turn grouping off and verify dates sort across the entire list.
+- [ ] Edit a due date/course; verify the assignment is sorted and grouped correctly.
+- [ ] Mark complete and Undo; verify counts and status update.
+- [ ] Cancel a deletion; verify the assignment stays. Confirm a deletion; verify it disappears.
+- [ ] Refresh, close/reopen the browser, and restart Node; verify saved fields and status remain.
+- [ ] Restart after deletion; verify the deleted assignment does not return.
+- [ ] Check the dashboard on a narrow screen.
 
 ## VS Code Live Server preview
 
-You can also right-click `public/index.html` and select **Open with Live Server**.
-The CSS and JavaScript now load using relative paths. On Live Server's usual ports
-(5500-5503), the app uses browser `localStorage` for a fully interactive preview,
-so the buttons work without Node.js. Preview data stays in that browser only.
-
-**For the actual Sprint 1 backend/API implementation and API tests**, run
-`npm start` and open `http://localhost:3000`. That mode uses the Node server
-and its in-memory assignment store (cleared on server restart).
+Right-click `public/index.html` and select **Open with Live Server**. On ports 5500–5503, the preview saves to this browser's localStorage under the existing `ssw555-sprint1-preview` key, preserving earlier preview data. Preview data is separate from the Node server's data and is not transferred between modes. Use `npm start` for the backend and persistence tests.

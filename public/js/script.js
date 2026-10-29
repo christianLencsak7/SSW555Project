@@ -1,6 +1,6 @@
 'use strict';
 const $ = id => document.getElementById(id);
-const state = { assignments: [], editingId: null, deletingId: null, toastTimer: null };
+const state = { assignments: [], editingId: null, deletingId: null, toastTimer: null, grouped: true, sortDirection: 'asc' };
 const form = $('assignment-form');
 const dialog = $('assignment-dialog');
 const deleteDialog = $('delete-dialog');
@@ -63,7 +63,20 @@ function render() {
   $('done-count').textContent = items.filter(a => a.completed).length;
   $('list-count').textContent = items.length;
   $('empty-state').hidden = items.length !== 0;
-  for (const a of items) {
+  $('group-toggle').setAttribute('aria-pressed', String(state.grouped));
+  $('sort-toggle').textContent = state.sortDirection === 'asc' ? 'Due date: Earliest first ↑' : 'Due date: Latest first ↓';
+  $('view-summary').textContent = state.grouped ? 'Grouped by course; sorted by due date within each course.' : 'All assignments sorted by due date.';
+  const courses = AssignmentView.groupAssignments(items, state.sortDirection);
+  $('course-options').replaceChildren(...courses.map(group => { const option = element('option'); option.value = group.course; return option; }));
+  const groups = state.grouped ? courses : [{ assignments: AssignmentView.sortAssignments(items, state.sortDirection) }];
+  for (const group of groups) {
+    const container = state.grouped ? element('section', 'course-group') : list;
+    if (state.grouped) {
+      const heading = element('h3', 'course-heading', group.course);
+      heading.append(element('span', 'count-badge', group.assignments.length));
+      container.append(heading); list.append(container);
+    }
+    for (const a of group.assignments) {
     const row = element('article', 'assignment-row' + (a.completed ? ' completed' : ''));
     const details = element('div');
     details.append(element('div', 'assignment-title', a.title), element('div', 'assignment-course', a.course));
@@ -85,7 +98,8 @@ function render() {
     const actions = element('div', 'row-actions');
     const edit = element('button', 'icon-button', '✎'); edit.type = 'button'; edit.title = 'Edit assignment'; edit.setAttribute('aria-label', 'Edit ' + a.title); edit.addEventListener('click', () => openForm(a));
     const del = element('button', 'icon-button delete', '♲'); del.type = 'button'; del.title = 'Delete assignment'; del.setAttribute('aria-label', 'Delete ' + a.title); del.textContent = '×'; del.addEventListener('click', () => openDelete(a));
-    actions.append(edit, del); row.append(details, due, priorityCell, statusCell, actions); list.append(row);
+    actions.append(edit, del); row.append(details, due, priorityCell, statusCell, actions); container.append(row);
+    }
   }
 }
 async function setCompleted(id, completed) {
@@ -103,6 +117,7 @@ function openDelete(a) { state.deletingId = a.id; $('delete-message').textConten
 form.addEventListener('submit', async event => {
   event.preventDefault(); const error = $('form-error'); error.hidden = true;
   const data = Object.fromEntries(new FormData(form).entries());
+  data.course = AssignmentView.courseName(data.course);
   if (!data.title.trim() || !data.course.trim() || !data.dueDate) { error.textContent = 'Please enter a title, course, and due date.'; error.hidden = false; return; }
   const save = $('save-button'); save.disabled = true;
   try {
@@ -123,4 +138,6 @@ $('confirm-delete').addEventListener('click', async () => {
 for (const id of ['add-top', 'add-inline', 'add-empty']) $(id).addEventListener('click', () => openForm());
 for (const id of ['close-dialog', 'cancel-dialog']) $(id).addEventListener('click', () => dialog.close());
 $('cancel-delete').addEventListener('click', () => deleteDialog.close());
+$('group-toggle').addEventListener('click', () => { state.grouped = !state.grouped; render(); });
+$('sort-toggle').addEventListener('click', () => { state.sortDirection = state.sortDirection === 'asc' ? 'desc' : 'asc'; render(); });
 api().then(items => { state.assignments = items; render(); }).catch(error => { render(); toast(error.message); });

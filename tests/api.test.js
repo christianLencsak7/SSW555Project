@@ -2,10 +2,15 @@
 const { test, before, after } = require('node:test');
 const assert = require('node:assert/strict');
 const http = require('node:http');
-const { handler } = require('../server');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const { createHandler } = require('../server');
+const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'ssw555-api-'));
+const handler = createHandler({ dataFile: path.join(temporary, 'assignments.json') });
 let server, base;
 before(async () => { server = http.createServer(handler); await new Promise(resolve => server.listen(0, '127.0.0.1', resolve)); base = `http://127.0.0.1:${server.address().port}`; });
-after(async () => { await new Promise(resolve => server.close(resolve)); });
+after(async () => { await new Promise(resolve => server.close(resolve)); fs.rmSync(temporary, { recursive: true, force: true }); });
 async function request(route, method = 'GET', body) { const response = await fetch(base + route, { method, headers: { 'Content-Type': 'application/json' }, body: body === undefined ? undefined : JSON.stringify(body) }); return { status: response.status, body: await response.json() }; }
 const sample = { title: 'Sprint report', dueDate: '2026-10-29', course: 'SSW 555', description: 'Finish report', priority: 'High' };
 test('GET starts empty', async () => { const r = await request('/api/assignments'); assert.equal(r.status, 200); assert.deepEqual(r.body, []); });
